@@ -1,101 +1,59 @@
-import Image from "next/image";
+"use client"
+import axios from 'axios';
+import { useState } from "react";
+
+interface HtmlCode {
+  htmlCode : string[];
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [emoji, setEmoji] = useState("&#128144;");
+  const [clicked, setClicked] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const decodeHtmlEntity = (html : string) => {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = html;
+    return txt.value;
+  };
+
+  const fetchEmoji = async () => {
+    if (!clicked) {
+      try {
+        const response = await axios.get<HtmlCode>("https://emojihub-1001447344924.asia-southeast2.run.app/api/random")
+        const data = await response.data.htmlCode[0];
+        setEmoji(decodeHtmlEntity(data));
+      } catch (error) {
+        alert(error)
+      }
+
+      setClicked(true)
+      setTimeout(() => {
+        setClicked(false)
+      }, 1000)
+    }
+  } 
+
+  return (
+    <main className="p-4 h-screen text-base bg-[#FAF4E1]">
+        <div className="m-4 h-[90vh] bg-[#F8DD84] flex flex-col relative justify-center items-center">
+        <div className="w-[30%]  h-[30%] absolute z-10">
+          <button onClick={fetchEmoji} className="w-[100%] h-[100%]"></button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <div className="w-[100%] text-[40px] absolute h-[40%] top-[10%] text-center">
+            <h1 className="m-5">What&apos;s your</h1>
+            <h1>emoji today ?</h1>
+          </div>
+          <div className="w-[100%] absolute top-[35%] text-center">
+          <p>Click it !</p>
+          </div>
+          <div className="w-[100%] absolute top-[50%] text-center">
+            <span className="text-[20vh]">{decodeHtmlEntity(emoji)}</span>
+          </div>
+          <div className="absolute w-[100%] text-center bottom-[10%]">
+            <p>You&apos;re sad and you know it.</p>
+            <p>just give up, don&apos;t try.</p>
+          </div>
+        </div>
+    </main>
   );
 }
